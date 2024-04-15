@@ -24,7 +24,7 @@ class EMGClassifier(nn.Module):
 
 if __name__ == "__main__":
     # Define dataset directory and instantiate PhysioNetDataset
-    dat_dir = 'C:\\Users\\Jakeeer\\Desktop\\Senior Project\\database' #CHANGE
+    dat_dir = 'C:\\Users\\Jakeeer\\git\\senior_project\\machine learning practice\\database' #CHANGE
     physionet_dataset = PhysioNetDataset(dat_dir,None,input_size)
 
     # Define batch size and DataLoader
@@ -41,6 +41,7 @@ if __name__ == "__main__":
     for epoch in range(num_epochs):
         running_loss = 0.0
         for i, data in enumerate(dataloader, 0):
+            print(len(dataloader))
             #inputs, labels = data
             emg_signals, labels = data['emg'], data['label']
 
@@ -62,4 +63,4 @@ if __name__ == "__main__":
     print('Finished Training')
 
     # Save the trained model
-    torch.save(model.state_dict(), 'C:\\Users\\Jakeeer\\Desktop\\Senior Project\\EMG_trained.pth') #CHANGE
+    torch.save(model.state_dict(), 'C:\\Users\\Jakeeer\\git\\senior_project\\machine learning practice\\EMG_trained.pth') #CHANGE

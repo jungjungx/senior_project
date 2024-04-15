@@ -4,18 +4,18 @@ from psyonet_dataset import PhysioNetDataset
 from EMGClassifier import EMGClassifier
 
 #size of all datasets
-input_size = 50000
+input_size = 5000 #change
 
 if __name__ == "__main__":
     # Load the trained model
     model = EMGClassifier(input_size)  # Create an instance of your model
-    model.load_state_dict(torch.load('C:\\Users\\Jakeeer\\Desktop\\Senior Project\\EMG_trained.pth'))  #CHANGE
+    model.load_state_dict(torch.load('C:\\Users\\Jakeeer\\git\\senior_project\\machine learning practice\\EMG_trained_short.pth'))  #CHANGE
 
     # Set the model to evaluation mode
     model.eval()
 
     # Define the dataset for the test data
-    test_dat_dir = 'C:\\Users\\Jakeeer\\Desktop\\Senior Project\\test_database'  # CHANGE - Path to directory containing test data files
+    test_dat_dir = 'C:\\Users\\Jakeeer\\git\\senior_project\\machine learning practice\\test_database'  # CHANGE 
     test_dataset = PhysioNetDataset(test_dat_dir,max_length=input_size)
 
     # Define batch size and DataLoader for test data
