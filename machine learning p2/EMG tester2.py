@@ -27,8 +27,12 @@ y = df[df.columns[-1]]
 X = X.values
 y = y.values
 
+
 #Testing data
 X_test_tensor = torch.FloatTensor(X) #change
+X_test_tensor = X_test_tensor.unsqueeze(-1)  # Add an additional dimension at the end
+X_test_tensor = X_test_tensor.permute(0, 2, 1)  # Permute dimensions to match expected shape
+
 y_test_tensor = torch.LongTensor(y) #change
 
 model = EMGModel()  # Create an instance of your model
@@ -36,28 +40,31 @@ model.load_state_dict(torch.load('C:\\Users\\Jakeeer\\git\\senior_project\\machi
 criterion = nn.CrossEntropyLoss()
 
 # Evaluate Model on Test Data Set (validate model on test set)
-with torch.no_grad():  # Basically turn off back propogation
-  y_eval = model.forward(X_test_tensor) # X_test are features from our test set, y_eval will be predictions
-  loss = criterion(y_eval, y_test_tensor) # Find the loss or error
-
-correct = 0
 with torch.no_grad():
-  for i, data in enumerate(X_test_tensor):
-    y_val = model.forward(data)
+    correct = 0
+    for i, data in enumerate(X_test_tensor):
+        # Add a batch dimension for each sample
+        data = data.unsqueeze(0)
+        
+        # Forward pass through the model
+        y_val = model(data)
 
-    if y[i] == 0:
-      x = "rest"
-    elif y[i] == 1:
-      x = 'contraction'
-    else:
-      x = '?'
+        # Get the predicted label
+        predicted_label = y_val.argmax().item()
 
+        # Compare with the actual label
+        actual_label = y_test_tensor[i].item()
 
-    # Will tell us what type of signal our network thinks it is
-    print(f'{i+1}.)  {str(y_val)} \t {y[i]} \t {y_val.argmax().item()}')
+        # Print predictions and actual labels
+        print(f"Sample {i+1}: {predicted_label}, {actual_label}")
 
-    # Correct or not
-    if y_val.argmax().item() == y[i]:
-      correct +=1
+        # Print tensor values
+        print(y_val)
 
-print(f'We got {correct} correct!')
+        # Update correct predictions count
+        if predicted_label == actual_label:
+            correct += 1
+
+# Calculate accuracy
+accuracy = correct / len(X_test_tensor) * 100
+print(f"Accuracy: {accuracy:.2f}%")

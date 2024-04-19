@@ -32,47 +32,43 @@ y = y.values
 
 X_train = torch.FloatTensor(X) #CHANGE TO SPLIT/NOT SPLIT
 y_train = torch.LongTensor(y) #CHANGE TO SPLIT/NOT SPLIT
+X_train = X_train.unsqueeze(-1)  # Add an additional dimension at the end
+X_train = X_train.permute(0, 2, 1)  # Permute dimensions to match expected shape
+#print(X_train.size())
 
 model = EMGModel()
 # Set the criterion of model to measure the error, how far off the predictions are from the data
 criterion = nn.CrossEntropyLoss()
 
-# Define hyperparameters
-lr = 0.00000001  # Learning rate
-alpha = 0.9  # Smoothing constant
-eps = 1e-8  # Epsilon
-weight_decay = 1e-4  # Weight decay (L2 regularization coefficient)
-momentum = 0.9  # Momentum
-centered = True  # Use centered RMSprop
 # Choose Adam Optimizer, lr = learning rate (if error doesn't go down after a bunch of iterations (epochs), lower our learning rate)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.00000001)
-#optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, alpha=alpha, eps=eps, weight_decay=weight_decay, momentum=momentum, centered=centered)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.00001)
 #optimizer = torch.optim.SGD(model.parameters(), lr=0.0000001, momentum=0.82, weight_decay=1e-4)
 
 
 # Train our model!
 # Epochs? (one run thru all the training data in our network)
-epochs = 1500
+epochs = 6000
 losses = []
-for i in range(epochs):
-  # Go forward and get a prediction
-  y_pred = model.forward(X_train) # Get predicted results
-
-  # Measure the loss/error, gonna be high at first
-  loss = criterion(y_pred, y_train) # predicted values vs the y_train
-
-  # Keep Track of our losses
-  losses.append(loss.detach().numpy())
-
-  # print every 10 epoch
-  if i % 10 == 0:
-    print(f'Epoch: {i} and loss: {loss}')
-
-  # Do some back propagation: take the error rate of forward propagation and feed it back
-  # thru the network to fine tune the weights
-  optimizer.zero_grad()
-  loss.backward()
-  optimizer.step()
+for epoch in range(epochs):
+      # Forward pass: compute predicted outputs by passing inputs to the model
+    outputs = model(X_train)
+    
+    # Calculate the loss
+    loss = criterion(outputs, y_train)
+    
+    # Backward pass: compute gradient of the loss with respect to model parameters
+    optimizer.zero_grad()
+    loss.backward()
+    
+    # Perform a single optimization step (parameter update)
+    optimizer.step()
+    
+    # Append the loss value to the list for visualization
+    losses.append(loss.item())
+    
+    # Print the loss every 100 epochs
+    if epoch % 10 == 0:
+      print(f'Epoch {epoch+1}, Loss: {loss.item()}')
 
 # Graph it out!
 # Plot the loss values
