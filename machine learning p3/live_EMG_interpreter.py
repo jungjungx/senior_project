@@ -4,6 +4,7 @@ import numpy as np
 from EMGModel import EMGModel
 from live_csvcompiler import convert_csv
 import warnings
+import time
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -12,6 +13,9 @@ model_file = 'C:\\Users\\Jakeeer\\git\\senior_project\\machine learning p3\\EMG_
 #for live csv compiler
 input_file = "C:\\Users\\Jakeeer\\git\\senior_project\\machine learning p3\\VoltageTest.csv"
 output_file = "C:\\Users\\Jakeeer\\git\\senior_project\\machine learning p3\\VoltageTest_compiled.csv"
+
+model = EMGModel()  # Create an instance of your model
+model.load_state_dict(torch.load(model_file))  #CHANGE
 
 def live_interpret():
     # Preprocess data as needed
@@ -23,14 +27,11 @@ def live_interpret():
 
     # Convert data to NumPy array
     X = data.values
-
     # Convert NumPy array to PyTorch tensor
     X_test = torch.FloatTensor(X)
     X_test = X_test.unsqueeze(-1)  # Add an additional dimension at the end
     X_test = X_test.permute(0, 2, 1)  # Permute dimensions to match expected shape
 
-    model = EMGModel()  # Create an instance of your model
-    model.load_state_dict(torch.load(model_file))  #CHANGE
 
     # Perform inference with your model
     # Assuming model is already loaded and ready for inference
@@ -49,4 +50,10 @@ def live_interpret():
         print("Contracting EMG Signal")
 
 if __name__ == "__main__":
-    live_interpret()
+    while True:
+        start_time = time.time()  # Record the start time
+        live_interpret()
+        end_time = time.time()  # Record the end time
+        loop_time = end_time - start_time  # Calculate the time taken for the loop iteration
+        print(f"Loop took {loop_time:.2f} seconds")
+        time.sleep(1 - loop_time) 
